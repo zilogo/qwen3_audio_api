@@ -16,13 +16,13 @@ fn main() {
                    export LD_LIBRARY_PATH=$LIBTORCH/lib:$LD_LIBRARY_PATH\n\
                  \n\
                  Example (CPU):\n\
-                   wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-2.7.1%2Bcpu.zip\n\
-                   unzip libtorch-cxx11-abi-shared-with-deps-2.7.1+cpu.zip\n\
+                   wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-2.7.0%2Bcpu.zip\n\
+                   unzip libtorch-cxx11-abi-shared-with-deps-2.7.0+cpu.zip\n\
                    export LIBTORCH=$(pwd)/libtorch\n\
                  \n\
                  Example (CUDA 12.8):\n\
-                   wget https://download.pytorch.org/libtorch/cu128/libtorch-cxx11-abi-shared-with-deps-2.7.1%2Bcu128.zip\n\
-                   unzip libtorch-cxx11-abi-shared-with-deps-2.7.1+cu128.zip\n\
+                   wget https://download.pytorch.org/libtorch/cu128/libtorch-cxx11-abi-shared-with-deps-2.7.0%2Bcu128.zip\n\
+                   unzip libtorch-cxx11-abi-shared-with-deps-2.7.0+cu128.zip\n\
                    export LIBTORCH=$(pwd)/libtorch\n\
                  ====================================================="
             );

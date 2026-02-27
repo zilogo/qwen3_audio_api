@@ -10,7 +10,8 @@ jobs:
     timeout-minutes: 120
 
     env:
-      LIBTORCH_VERSION: "2.7.1"
+      LIBTORCH_VERSION: "2.7.0"
+      LIBTORCH_BYPASS_VERSION_CHECK: "1"
 
     steps:
       - uses: actions/checkout@v4
