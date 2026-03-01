@@ -34,6 +34,27 @@ TTS_CUSTOMVOICE_MODEL_PATH=/path/to/models/Qwen3-TTS-12Hz-0.6B-CustomVoice \
   ./qwen3-audio-api
 ```
 
+### Linux (aarch64)
+
+```bash
+# Download and extract
+curl -LO https://github.com/second-state/qwen3_audio_api/releases/latest/download/qwen3-audio-api-linux-aarch64.tar.gz
+tar xzf qwen3-audio-api-linux-aarch64.tar.gz
+cd qwen3-audio-api-linux-aarch64
+
+# Set libtorch library path (bundled in the archive)
+export LD_LIBRARY_PATH=$(pwd)/libtorch/lib:$LD_LIBRARY_PATH
+
+# Download models (see "Download models" section below)
+# ...
+
+# Run the server with TTS + ASR
+TTS_CUSTOMVOICE_MODEL_PATH=/path/to/models/Qwen3-TTS-12Hz-0.6B-CustomVoice \
+  TTS_BASE_MODEL_PATH=/path/to/models/Qwen3-TTS-12Hz-0.6B-Base \
+  ASR_MODEL_PATH=/path/to/models/Qwen3-ASR-0.6B \
+  ./qwen3-audio-api
+```
+
 ### macOS (Apple Silicon)
 
 ```bash
