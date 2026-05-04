@@ -57,6 +57,11 @@ huggingface-cli download Qwen/Qwen3-ASR-1.7B \
   --local-dir ./models/Qwen3-ASR-1.7B
 ```
 
+## Deployment guides
+
+- For a validated standalone NVIDIA DGX Spark Docker deployment, see [DEPLOY_SPARK_DOCKER.md](DEPLOY_SPARK_DOCKER.md).
+- To download the validated model set into the default Spark host path, use [scripts/download_models.sh](scripts/download_models.sh).
+
 ## Quickstart with Docker
 
 > **Note:** You don't need all models — load only what you need. At least one of `TTS_CUSTOMVOICE_MODEL_PATH`, `TTS_BASE_MODEL_PATH`, or `ASR_MODEL_PATH` must be set.

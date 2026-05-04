@@ -3,7 +3,11 @@ FROM nvidia/cuda:12.8.1-devel-ubuntu24.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+        build-essential \
+        git \
+        ninja-build \
         python3.12 \
+        python3.12-dev \
         python3.12-venv \
         ffmpeg \
         libsndfile1 \
@@ -14,20 +18,41 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 WORKDIR /app
 
-ENV UV_PYTHON=python3.12
+ENV UV_PYTHON=python3.12 \
+    CUDA_HOME=/usr/local/cuda \
+    PATH="/usr/local/cuda/bin:${PATH}" \
+    LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}" \
+    TORCH_CUDA_ARCH_LIST="12.0" \
+    FLASH_ATTN_CUDA_ARCHS="120" \
+    FLASH_ATTENTION_SKIP_CUDA_BUILD=FALSE \
+    FLASH_ATTENTION_FORCE_BUILD=TRUE \
+    MAX_JOBS=4 \
+    NVCC_THREADS=2
 
 COPY pyproject.toml uv.lock ./
 
-# Install all dependencies (CPU torch from lock file).
+# Install the locked dependency graph first.
 RUN uv sync --frozen --no-dev
 
-# Replace CPU torch with CUDA 12.8 variant.
+# Ensure the venv has pip, then replace locked CPU torch packages with CUDA 12.8 wheels.
 ENV VIRTUAL_ENV=/app/.venv \
     PATH="/app/.venv/bin:$PATH"
-RUN uv pip install torch torchaudio --index-url https://download.pytorch.org/whl/cu128
+RUN python -m ensurepip --upgrade && \
+    uv pip uninstall torch torchaudio && \
+    uv pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cu128 torch torchaudio && \
+    python - <<'PY2'
+import torch
+print('torch', torch.__version__)
+print('cuda', torch.version.cuda)
+print('cuda_available', torch.cuda.is_available())
+PY2
 
-# Install flash attention for reduced GPU memory usage.
-RUN uv pip install flash-attn --no-build-isolation
+# Install flash-attn against the CUDA-enabled torch toolchain and only build the Blackwell target.
+RUN uv pip install --no-cache-dir flash-attn --no-build-isolation && \
+    python - <<'PY3'
+import flash_attn
+print('flash_attn', flash_attn.__file__)
+PY3
 
 COPY main.py .
 

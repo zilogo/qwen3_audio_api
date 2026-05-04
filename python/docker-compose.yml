@@ -4,20 +4,37 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - "${QWEN3_AUDIO_CPU_PORT:-8000}:8000"
     volumes:
-      - ./models/Qwen3-TTS-12Hz-0.6B-CustomVoice:/model
+      - ${QWEN3_AUDIO_MODELS_DIR:-./models}/Qwen3-TTS-12Hz-0.6B-CustomVoice:/customvoice-model:ro
+      - ${QWEN3_AUDIO_MODELS_DIR:-./models}/Qwen3-TTS-12Hz-0.6B-Base:/base-model:ro
+      - ${QWEN3_AUDIO_MODELS_DIR:-./models}/Qwen3-ASR-0.6B:/asr-model:ro
+    environment:
+      TTS_CUSTOMVOICE_MODEL_PATH: /customvoice-model
+      TTS_BASE_MODEL_PATH: /base-model
+      ASR_MODEL_PATH: /asr-model
+      QWEN_TTS_DEVICE: cpu
+      QWEN_TTS_DTYPE: float32
+      QWEN_TTS_ATTN: ""
     profiles:
       - cpu
 
-  cuda:
+  cuda-06:
     build:
       context: .
       dockerfile: Dockerfile.cuda
     ports:
-      - "8000:8000"
+      - "${QWEN3_AUDIO_06_PORT:-18000}:8000"
     volumes:
-      - ./models/Qwen3-TTS-12Hz-1.7B-CustomVoice:/model
+      - ${QWEN3_AUDIO_MODELS_DIR:-./models}:/models:ro
+      - ${QWEN3_AUDIO_RUNTIME_DIR:-./runtime}:/runtime
+    environment:
+      TTS_CUSTOMVOICE_MODEL_PATH: /models/Qwen3-TTS-12Hz-0.6B-CustomVoice
+      TTS_BASE_MODEL_PATH: /models/Qwen3-TTS-12Hz-0.6B-Base
+      ASR_MODEL_PATH: /models/Qwen3-ASR-0.6B
+      QWEN_TTS_DEVICE: cuda
+      QWEN_TTS_DTYPE: bfloat16
+      QWEN_TTS_ATTN: flash_attention_2
     deploy:
       resources:
         reservations:
@@ -27,3 +44,31 @@ services:
               capabilities: [gpu]
     profiles:
       - cuda
+      - cuda-06
+
+  cuda-17:
+    build:
+      context: .
+      dockerfile: Dockerfile.cuda
+    ports:
+      - "${QWEN3_AUDIO_17_PORT:-18001}:8000"
+    volumes:
+      - ${QWEN3_AUDIO_MODELS_DIR:-./models}:/models:ro
+      - ${QWEN3_AUDIO_RUNTIME_DIR:-./runtime}:/runtime
+    environment:
+      TTS_CUSTOMVOICE_MODEL_PATH: /models/Qwen3-TTS-12Hz-1.7B-CustomVoice
+      TTS_BASE_MODEL_PATH: /models/Qwen3-TTS-12Hz-0.6B-Base
+      ASR_MODEL_PATH: /models/Qwen3-ASR-1.7B
+      QWEN_TTS_DEVICE: cuda
+      QWEN_TTS_DTYPE: bfloat16
+      QWEN_TTS_ATTN: flash_attention_2
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    profiles:
+      - cuda
+      - cuda-17
